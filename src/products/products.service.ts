@@ -18,16 +18,27 @@ export class ProductsService {
     createProductDto: CreateProductDto,
     images: string[],
   ): Promise<Product> {
-    const product = await this.productModel.create(createProductDto);
+    let productData = { ...createProductDto };
+
+    productData = {
+      ...productData,
+    };
+
+    console.log('productData: \n', productData);
+    const product = await this.productModel.create(productData);
+
     if (images.length) {
-      await Promise.all(
-        images.map((url) =>
-          this.productImageModel.create({ productId: product.id, images: url }),
-        ),
-      );
+      for (const url of images) {
+        console.log(url);
+        await this.productImageModel.create({
+          productId: product.id,
+          images: url,
+        });
+      }
     }
     return product;
   }
+
   async findAll(): Promise<any[]> {
     const products = await this.productModel.findAll({
       include: [ProductImage, Category],

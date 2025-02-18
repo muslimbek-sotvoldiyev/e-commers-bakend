@@ -23,14 +23,18 @@ export class Product extends Model<Product> {
   @Column({ type: DataType.TEXT, allowNull: false })
   description: string;
 
-  @Column({ type: DataType.STRING, allowNull: false })
+  @Column({ type: DataType.INTEGER, allowNull: false })
   price: number;
 
-  @Column({ type: DataType.JSONB, defaultValue: [] })
-  sizes: string[];
+  @Column({
+    type: DataType.STRING,
+  })
+  sizes: string;
 
-  @Column({ type: DataType.JSONB, defaultValue: [] })
-  colors: string[];
+  @Column({
+    type: DataType.STRING,
+  })
+  colors: string;
 
   @ForeignKey(() => Category)
   @Column({ type: DataType.INTEGER, allowNull: false })

@@ -28,14 +28,10 @@ export class CreateProductDto {
   category_id: number;
 
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  sizes?: string[];
+  sizes?: any;
 
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  colors?: string[];
+  colors?: any;
 
   @IsOptional()
   photos?: any;

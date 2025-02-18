@@ -1,80 +1,66 @@
-// cart-item.controller.ts
 import {
   Controller,
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   UseGuards,
   Req,
-  Query,
+  ForbiddenException,
 } from '@nestjs/common';
-import { CartItemService } from './cart-item.service';
+import { Roles } from 'src/common/guards/role.decorator';
+import { Role, RolesGuard } from 'src/common/guards/role.guard';
+import { AuthGuardd } from 'src/common/guards/auth.guard';
 import { CreateCartItemDto } from './dto/create-cart-item.dto';
-import { UpdateCartItemDto } from './dto/update-cart-item.dto';
+import { CartItemService } from './cart-item.service';
 
-@Controller('cart-items')
+@Controller('cart-item')
 export class CartItemController {
-  constructor(private readonly cartItemService: CartItemService) {}
+  constructor(private readonly cartService: CartItemService) {}
 
+  // Cartga mahsulot qo‘shish
   @Post()
+  @Roles(Role.ADMIN, Role.CUSTOMER)
+  @UseGuards(AuthGuardd, RolesGuard)
   create(@Body() createCartItemDto: CreateCartItemDto, @Req() req) {
-    createCartItemDto.userId = req.user.id;
-    return this.cartItemService.create(createCartItemDto);
+    createCartItemDto.userId = req.user.dataValues.id;
+    return this.cartService.create(createCartItemDto);
   }
 
+  // Barcha cartlarni olish
   @Get()
-  findAll(@Req() req, @Query('userId') userId?: number) {
-    if (req.user.role === 'admin' && userId) {
-      return this.cartItemService.findAll(userId);
-    }
-    return this.cartItemService.findAllByUserId(req.user.id);
+  @Roles(Role.ADMIN, Role.CUSTOMER)
+  @UseGuards(AuthGuardd, RolesGuard)
+  findAll(@Req() req) {
+    return this.cartService.findAll(req.user.dataValues.id);
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string, @Req() req) {
-    const cartItem = await this.cartItemService.findOne(+id);
-    if (req.user.role !== 'admin' && cartItem.userId !== req.user.id) {
-      throw new Error("Siz faqat o'z savat elementlaringizni ko'ra olasiz");
+  // Bitta foydalanuvchining cartini olish
+  @Get(':user_id')
+  @Roles(Role.ADMIN, Role.CUSTOMER)
+  @UseGuards(AuthGuardd, RolesGuard)
+  findOne(@Param('user_id') user_id: number, @Req() req) {
+    if (user_id !== req.user.dataValues.id) {
+      throw new ForbiddenException("Siz faqat o'z cartini ko'ra olasiz");
     }
-    return cartItem;
+    return this.cartService.findOne(user_id);
   }
 
-  @Patch(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateCartItemDto: UpdateCartItemDto,
+  // Cartdan mahsulot o‘chirish
+  @Delete(':user_id/:product_id')
+  @Roles(Role.ADMIN, Role.CUSTOMER)
+  @UseGuards(AuthGuardd, RolesGuard)
+  remove(
+    @Param('user_id') user_id: number,
+    @Param('product_id') product_id: number,
     @Req() req,
   ) {
-    const cartItem = await this.cartItemService.findOne(+id);
-    if (req.user.role !== 'admin' && cartItem.userId !== req.user.id) {
-      throw new Error("Siz faqat o'z savat elementlaringizni yangilay olasiz");
+    if (user_id !== req.user.dataValues.id) {
+      throw new ForbiddenException(
+        "Siz faqat o'z cartidan mahsulotni o'chira olasiz",
+      );
     }
-    return this.cartItemService.update(+id, updateCartItemDto);
-  }
-
-  @Delete(':id')
-  async remove(@Param('id') id: string, @Req() req) {
-    const cartItem = await this.cartItemService.findOne(+id);
-    // Faqat admin yoki o'zining savat elementini o'chira oladi
-    if (req.user.role !== 'admin' && cartItem.userId !== req.user.id) {
-      throw new Error("Siz faqat o'z savat elementlaringizni o'chira olasiz");
-    }
-    return this.cartItemService.remove(+id);
-  }
-
-  @Delete('user/me')
-  removeAllMine(@Req() req) {
-    return this.cartItemService.removeAllByUserId(req.user.id);
-  }
-
-  @Delete('user/:userId')
-  removeAllByUserId(@Param('userId') userId: string, @Req() req) {
-    if (req.user.role !== 'admin' && +userId !== req.user.id) {
-      throw new Error("Siz faqat o'z savat elementlaringizni o'chira olasiz");
-    }
-    return this.cartItemService.removeAllByUserId(+userId);
+    return this.cartService.remove(user_id, product_id);
   }
 }

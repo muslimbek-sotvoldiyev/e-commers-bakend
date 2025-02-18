@@ -22,4 +22,4 @@ export class ProductImage extends Model<ProductImage> {
 
   @BelongsTo(() => Product)
   product: Product;
-}
+} 

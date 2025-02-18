@@ -10,7 +10,7 @@ import {
 import { Product } from '../products/products.model.js';
 import { Users } from '../users/users.model.js';
 
-@Table({ tableName: 'cartItems' }) // Ko'plikda yozilishi ma'qulroq
+@Table({ tableName: 'cartItems' }) 
 export class CartItem extends Model<CartItem> {
   @Column({ type: DataType.INTEGER, autoIncrement: true, primaryKey: true })
   id: number;
@@ -34,5 +34,5 @@ export class CartItem extends Model<CartItem> {
     allowNull: false,
     defaultValue: 1,
   })
-  quantity: number; // Mahsulot miqdorini saqlash uchun
+  quantity: number; 
 }
