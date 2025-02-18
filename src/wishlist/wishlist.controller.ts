@@ -8,7 +8,9 @@ export class WishlistController {
 
   // ✅ Wishlistga mahsulot qo‘shish
   @Post()
-  create(@Body() createWishlistDto: CreateWishlistDto) {
+  create(@Body() createWishlistDto) {
+    console.log(createWishlistDto);
+
     return this.wishlistService.create(createWishlistDto);
   }
 

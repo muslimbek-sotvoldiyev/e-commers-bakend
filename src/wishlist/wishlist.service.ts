@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Wishlist } from './wishlist.model.js';
 import { Product } from '../products/products.model.js';
@@ -10,18 +14,20 @@ export class WishlistService {
   constructor(
     @InjectModel(Wishlist) private readonly wishlistModel: typeof Wishlist,
   ) {}
-
-  // ✅ Wishlistga mahsulot qo‘shish
   async create(createWishlistDto: CreateWishlistDto) {
-    const wishlistItem = await this.wishlistModel.create(createWishlistDto);
-    return wishlistItem;
+    if (!createWishlistDto.user_id || !createWishlistDto.product_id) {
+      throw new BadRequestException('user_id va product_id kerak');
+    }
+    return this.wishlistModel.create(createWishlistDto);
   }
 
   // ✅ Barcha wishlistlarni olish
   async findAll() {
-    return await this.wishlistModel.findAll({
+    const data = await this.wishlistModel.findAll({
       include: [{ model: Product }],
     });
+
+    return data.map((wishlist) => wishlist.product);
   }
 
   // ✅ Bitta foydalanuvchining wishlistini olish
@@ -35,7 +41,7 @@ export class WishlistService {
       throw new NotFoundException(`Wishlist for user ${user_id} not found`);
     }
 
-    return wishlist;
+    return wishlist.map((item) => item.product);
   }
 
   // ✅ Wishlistdan mahsulot o‘chirish

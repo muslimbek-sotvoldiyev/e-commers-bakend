@@ -3,8 +3,7 @@ import { UpdateUserDto } from './dto/update-user.dto.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { InjectModel } from '@nestjs/sequelize';
 import { ConfigService } from '../common/config/config.service.js';
-// import * as jwt from 'jsonwebtoken';
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
 import { Users } from './users.model.js';
 import { LoginUserDto } from './dto/login-user.dto.js';
@@ -13,22 +12,25 @@ import { LoginUserDto } from './dto/login-user.dto.js';
 export class UsersService {
   constructor(
     @InjectModel(Users) private readonly userModel: typeof Users,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const existingStudent = await this.userModel.findOne({
+    const existingUser = await this.userModel.findOne({
       where: { email: createUserDto.email },
     });
 
-    if (existingStudent) {
+    if (existingUser) {
       throw new Error('Bu email bilan talaba allaqachon mavjud.');
     }
 
     createUserDto.password = await bcrypt.hash(createUserDto.password, 10);
 
-    return this.userModel.create(createUserDto as any);
+    const user = await this.userModel.create(createUserDto as any);
+
+    return user;
   }
+
   async login(loginUserDto: LoginUserDto) {
     const { email, password } = loginUserDto;
 
@@ -37,7 +39,10 @@ export class UsersService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user['dataValues'].password);
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      user['dataValues'].password,
+    );
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid email or password');
     }
@@ -67,7 +72,10 @@ export class UsersService {
   }
   async refreshToken(refreshToken: string) {
     try {
-      const decoded = jwt.verify(refreshToken, this.configService.get('JWT_REFRESH_SECRET'));
+      const decoded = jwt.verify(
+        refreshToken,
+        this.configService.get('JWT_REFRESH_SECRET'),
+      );
 
       const user = await this.userModel.findByPk(decoded.id);
 

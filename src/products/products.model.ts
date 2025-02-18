@@ -4,14 +4,13 @@ import {
   Model,
   DataType,
   HasMany,
-  BelongsToMany,
   ForeignKey,
   BelongsTo,
+  HasOne,
 } from 'sequelize-typescript';
 import { ProductImage } from '../product_images/product_images.model.js';
 import { Category } from '../categories/categories.model.js';
-import { Users } from '../users/users.model.js';
-import { Wishlist } from '../wishlist/wishlist.model.js';
+import { CartItem } from '../cart-item/cart-item.model.js';
 
 @Table({ tableName: 'products' })
 export class Product extends Model<Product> {
@@ -42,4 +41,7 @@ export class Product extends Model<Product> {
 
   @HasMany(() => ProductImage)
   images: ProductImage[];
+
+  @HasOne(() => CartItem)
+  cartItem: CartItem;
 }

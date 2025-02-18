@@ -1,13 +1,7 @@
-import {
-  Table,
-  Column,
-  Model,
-  DataType,
-  HasMany,
-  BelongsToMany,
-} from 'sequelize-typescript';
-import { Product } from '../products/products.model.js';
+// Users model
+import { Table, Column, Model, DataType, HasMany } from 'sequelize-typescript';
 import { Wishlist } from '../wishlist/wishlist.model.js';
+import { CartItem } from '../cart-item/cart-item.model.js';
 
 @Table({
   tableName: 'users',
@@ -40,4 +34,7 @@ export class Users extends Model {
 
   @HasMany(() => Wishlist)
   wishlists: Wishlist[];
+
+  @HasMany(() => CartItem)
+  cartItems: CartItem[];
 }

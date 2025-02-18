@@ -7,9 +7,12 @@ import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { CartItemModule } from './cart-item/cart-item.module';
+import { SharedModule } from './common/shared.module';
 
 @Module({
   imports: [
+    SharedModule,
     SequelizeModule.forRoot({
       dialect: 'postgres',
       host: process.env.PGHOST || '127.0.0.1',
@@ -26,11 +29,13 @@ import { ServeStaticModule } from '@nestjs/serve-static';
       rootPath: join(__dirname, '../', 'uploads'),
       serveRoot: '/static',
     }),
+
     ProductImagesModule,
     ProductsModule,
     CategoriesModule,
     WishlistModule,
     UsersModule,
+    CartItemModule,
   ],
 })
 export class AppModule {}
