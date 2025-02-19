@@ -21,7 +21,6 @@ export class WishlistService {
     return this.wishlistModel.create(createWishlistDto);
   }
 
-  // ✅ Barcha wishlistlarni olish
   async findAll() {
     const data = await this.wishlistModel.findAll({
       include: [{ model: Product }],
@@ -30,7 +29,6 @@ export class WishlistService {
     return data.map((wishlist) => wishlist.product);
   }
 
-  // ✅ Bitta foydalanuvchining wishlistini olish
   async findOne(user_id: number) {
     const wishlist = await this.wishlistModel.findAll({
       where: { user_id },
@@ -44,7 +42,6 @@ export class WishlistService {
     return wishlist.map((item) => item.product);
   }
 
-  // ✅ Wishlistdan mahsulot o‘chirish
   async remove(user_id: number, product_id: number) {
     const wishlistItem = await this.wishlistModel.findOne({
       where: { user_id, product_id },

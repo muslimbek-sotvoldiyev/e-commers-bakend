@@ -9,6 +9,9 @@ import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { CartItemModule } from './cart-item/cart-item.module';
 import { SharedModule } from './common/shared.module';
+import { CardInfoModule } from './card-info/card-info.module';
+import { OrderItemModule } from './order-item/order-item.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -36,6 +39,9 @@ import { SharedModule } from './common/shared.module';
     WishlistModule,
     UsersModule,
     CartItemModule,
+    CardInfoModule,
+    OrderItemModule,
+    OrderModule,
   ],
 })
 export class AppModule {}

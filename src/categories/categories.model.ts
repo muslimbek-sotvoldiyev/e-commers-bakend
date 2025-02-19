@@ -1,5 +1,5 @@
 import { Table, Column, Model, DataType, HasMany } from 'sequelize-typescript';
-import { Product } from '../products/products.model.js'; // To'g'ri import qilish
+import { Product } from '../products/products.model.js'; 
 
 @Table({ tableName: 'categories' })
 export class Category extends Model<Category> {

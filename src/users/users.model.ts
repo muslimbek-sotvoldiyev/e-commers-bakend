@@ -1,7 +1,15 @@
-// Users model
-import { Table, Column, Model, DataType, HasMany } from 'sequelize-typescript';
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  HasMany,
+  HasOne,
+} from 'sequelize-typescript';
 import { Wishlist } from '../wishlist/wishlist.model.js';
 import { CartItem } from '../cart-item/cart-item.model.js';
+import { Order } from '../order/order.model.js';
+import { CardInfo } from '../card-info/card-info.model.js';
 
 @Table({
   tableName: 'users',
@@ -37,4 +45,10 @@ export class Users extends Model {
 
   @HasMany(() => CartItem)
   cartItems: CartItem[];
+
+  @HasOne(() => Order)
+  order: Order;
+
+  @HasMany(() => CardInfo)
+  cardInfos: CardInfo[];
 }

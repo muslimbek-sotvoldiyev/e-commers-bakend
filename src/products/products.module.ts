@@ -8,6 +8,7 @@ import { Wishlist } from '../wishlist/wishlist.model.js';
 import { Users } from '../users/users.model.js';
 import { Category } from '../categories/categories.model.js';
 import { CartItem } from '../cart-item/cart-item.model.js';
+import { OrderItem } from '../order-item/order-item.model.js';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CartItem } from '../cart-item/cart-item.model.js';
       Users,
       Wishlist,
       CartItem,
+      OrderItem,
     ]),
   ],
   controllers: [ProductsController],

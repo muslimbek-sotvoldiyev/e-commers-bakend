@@ -1,4 +1,3 @@
-// CartItem model
 import {
   Table,
   Column,

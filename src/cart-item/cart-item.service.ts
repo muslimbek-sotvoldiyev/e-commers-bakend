@@ -1,4 +1,3 @@
-// cart-item.service.ts
 import {
   BadRequestException,
   Injectable,
@@ -47,18 +46,24 @@ export class CartItemService {
   }
 
   async findOne(userId: number) {
-    const cart = await this.cartItemModel.findAll({
+    const cartItems = await this.cartItemModel.findAll({
       where: { userId },
-      include: [{ model: Product }],
+      include: [
+        {
+          model: Product,
+          attributes: ['id', 'price', 'name', 'description'],
+        },
+      ],
+      raw: true,
+      nest: true,
     });
 
-    if (!cart.length) {
+    if (!cartItems || cartItems.length === 0) {
       throw new NotFoundException(`Cart for user ${userId} not found`);
     }
 
-    return cart.map((item) => item.product);
+    return cartItems;
   }
-
   async remove(userId: number, productId: number) {
     const cartItem = await this.cartItemModel.findOne({
       where: { userId, productId },

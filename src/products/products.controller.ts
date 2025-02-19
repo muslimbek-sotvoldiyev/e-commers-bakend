@@ -38,9 +38,7 @@ export class ProductsController {
     @UploadedFiles() files?: { images?: Array<Express.Multer.File> },
   ) {
     const images = files?.images
-      ? files.images.map(
-          (file) => `http://localhost:3000/static/products/${file.filename}`,
-        )
+      ? files.images.map((file) => `/static/products/${file.filename}`)
       : [];
     return this.productsService.create(createProductDto, images);
   }
@@ -74,9 +72,7 @@ export class ProductsController {
     @UploadedFiles() files?: { images?: Express.Multer.File[] },
   ) {
     const images = files?.images
-      ? files.images.map(
-          (file) => `http://localhost:3000/static/products/${file.filename}`,
-        )
+      ? files.images.map((file) => `/static/products/${file.filename}`)
       : [];
     return this.productsService.update(+id, updateProductDto, images);
   }

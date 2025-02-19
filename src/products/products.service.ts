@@ -66,12 +66,26 @@ export class ProductsService {
       images: product.images.map((img) => img.images),
     };
   }
+
+  async findOneRaw(id: number): Promise<Product> {
+    const product = await this.productModel.findByPk(id);
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+    return product;
+  }
+
   async update(
     id: number,
     updateProductDto: UpdateProductDto,
     imageUrls?: string[],
   ): Promise<Product> {
-    const product = await this.findOne(id);
+    const product = await this.productModel.findByPk(id);
+
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+
     await product.update(updateProductDto);
 
     if (imageUrls) {
@@ -86,7 +100,7 @@ export class ProductsService {
   }
 
   async remove(id: number): Promise<void> {
-    const product = await this.findOne(id);
+    const product = await this.findOneRaw(id);
     await this.productImageModel.destroy({ where: { productId: id } });
     await product.destroy();
   }

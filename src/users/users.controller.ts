@@ -16,7 +16,6 @@ import { UpdateUserDto } from './dto/update-user.dto.js';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { FileInterceptor } from '@nestjs/platform-express';
-// import { ConfigService } from '../common/config/config.service.js';
 import { LoginUserDto } from './dto/login-user.dto.js';
 const storage = diskStorage({
   destination: './uploads',
@@ -27,7 +26,7 @@ const storage = diskStorage({
     callback(null, filename);
   },
 });
-
+  
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -36,9 +35,12 @@ export class UsersController {
   @UseInterceptors(
     FileInterceptor('photo', {
       storage,
-    })
+    }),
   )
-  async create(@UploadedFile() photo: any, @Body() createUserDto: CreateUserDto) {
+  async create(
+    @UploadedFile() photo: any,
+    @Body() createUserDto: CreateUserDto,
+  ) {
     if (!photo) {
       throw new BadRequestException('Fayl yuklanmadi');
     }
@@ -75,9 +77,13 @@ export class UsersController {
   @UseInterceptors(
     FileInterceptor('photo', {
       storage,
-    })
+    }),
   )
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @UploadedFile() photo: any) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @UploadedFile() photo: any,
+  ) {
     if (photo) {
       updateUserDto.photo = `http://localhost:3000/static/${photo.filename}`;
     }

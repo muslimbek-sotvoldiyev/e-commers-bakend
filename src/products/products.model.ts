@@ -11,6 +11,7 @@ import {
 import { ProductImage } from '../product_images/product_images.model.js';
 import { Category } from '../categories/categories.model.js';
 import { CartItem } from '../cart-item/cart-item.model.js';
+import { OrderItem } from '../order-item/order-item.model.js';
 
 @Table({ tableName: 'products' })
 export class Product extends Model<Product> {
@@ -48,4 +49,7 @@ export class Product extends Model<Product> {
 
   @HasOne(() => CartItem)
   cartItem: CartItem;
+
+  @HasOne(() => OrderItem)
+  orderItem: OrderItem;
 }

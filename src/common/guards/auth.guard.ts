@@ -44,7 +44,7 @@ export class AuthGuardd implements CanActivate {
         throw new UnauthorizedException('Foydalanuvchi topilmadi');
       }
 
-      request.user = user; // decodedToken emas, balki butun user obyektini qo‘shish yaxshiroq
+      request.user = user;
       return true;
     } catch (error) {
       if (error instanceof jwt.JsonWebTokenError) {

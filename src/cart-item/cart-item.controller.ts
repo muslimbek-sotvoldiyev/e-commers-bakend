@@ -9,9 +9,9 @@ import {
   Req,
   ForbiddenException,
 } from '@nestjs/common';
-import { Roles } from 'src/common/guards/role.decorator';
-import { Role, RolesGuard } from 'src/common/guards/role.guard';
-import { AuthGuardd } from 'src/common/guards/auth.guard';
+import { Roles } from '../common/guards/role.decorator';
+import { Role, RolesGuard } from '../common/guards/role.guard';
+import { AuthGuardd } from '../common/guards/auth.guard';
 import { CreateCartItemDto } from './dto/create-cart-item.dto';
 import { CartItemService } from './cart-item.service';
 
@@ -19,7 +19,6 @@ import { CartItemService } from './cart-item.service';
 export class CartItemController {
   constructor(private readonly cartService: CartItemService) {}
 
-  // Cartga mahsulot qo‘shish
   @Post()
   @Roles(Role.ADMIN, Role.CUSTOMER)
   @UseGuards(AuthGuardd, RolesGuard)
@@ -28,7 +27,6 @@ export class CartItemController {
     return this.cartService.create(createCartItemDto);
   }
 
-  // Barcha cartlarni olish
   @Get()
   @Roles(Role.ADMIN, Role.CUSTOMER)
   @UseGuards(AuthGuardd, RolesGuard)
@@ -36,7 +34,6 @@ export class CartItemController {
     return this.cartService.findAll(req.user.dataValues.id);
   }
 
-  // Bitta foydalanuvchining cartini olish
   @Get(':user_id')
   @Roles(Role.ADMIN, Role.CUSTOMER)
   @UseGuards(AuthGuardd, RolesGuard)
@@ -47,7 +44,6 @@ export class CartItemController {
     return this.cartService.findOne(user_id);
   }
 
-  // Cartdan mahsulot o‘chirish
   @Delete(':user_id/:product_id')
   @Roles(Role.ADMIN, Role.CUSTOMER)
   @UseGuards(AuthGuardd, RolesGuard)
