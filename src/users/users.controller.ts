@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UploadedFile,
   BadRequestException,
+  Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
@@ -26,7 +27,7 @@ const storage = diskStorage({
     callback(null, filename);
   },
 });
-  
+
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -44,7 +45,7 @@ export class UsersController {
     if (!photo) {
       throw new BadRequestException('Fayl yuklanmadi');
     }
-    createUserDto.photo = `http://localhost:3000/static/${photo.filename}`;
+    createUserDto.photo = `static/${photo.filename}`;
 
     const savedUser = await this.usersService.create(createUserDto);
 
@@ -73,6 +74,11 @@ export class UsersController {
     return this.usersService.findOne(+id);
   }
 
+  @Get('mee')
+  GetMee(@Req() req) {
+    return this.usersService.findOne(+req.user.dataValues.id);
+  }
+
   @Patch(':id')
   @UseInterceptors(
     FileInterceptor('photo', {
@@ -85,7 +91,7 @@ export class UsersController {
     @UploadedFile() photo: any,
   ) {
     if (photo) {
-      updateUserDto.photo = `http://localhost:3000/static/${photo.filename}`;
+      updateUserDto.photo = `/static/${photo.filename}`;
     }
 
     return this.usersService.update(+id, updateUserDto);

@@ -8,12 +8,14 @@ import {
   UseGuards,
   Req,
   ForbiddenException,
+  Put,
 } from '@nestjs/common';
 import { Roles } from '../common/guards/role.decorator';
 import { Role, RolesGuard } from '../common/guards/role.guard';
 import { AuthGuardd } from '../common/guards/auth.guard';
 import { CreateCartItemDto } from './dto/create-cart-item.dto';
 import { CartItemService } from './cart-item.service';
+import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 
 @Controller('cart-item')
 export class CartItemController {
@@ -27,36 +29,39 @@ export class CartItemController {
     return this.cartService.create(createCartItemDto);
   }
 
+  @Get('all')
+  @Roles(Role.ADMIN, Role.CUSTOMER)
+  @UseGuards(AuthGuardd, RolesGuard)
+  findAll() {
+    return this.cartService.findAll();
+  }
+
+  @Put(':id')
+  @Roles(Role.ADMIN, Role.CUSTOMER)
+  @UseGuards(AuthGuardd, RolesGuard)
+  update(
+    @Param('id') id: number,
+    @Body() updateCartItemDto: UpdateCartItemDto,
+    @Req() req,
+  ) {
+    return this.cartService.update(
+      +id,
+      updateCartItemDto,
+      req.user.dataValues.id,
+    );
+  }
+
   @Get()
   @Roles(Role.ADMIN, Role.CUSTOMER)
   @UseGuards(AuthGuardd, RolesGuard)
-  findAll(@Req() req) {
-    return this.cartService.findAll(req.user.dataValues.id);
+  findOne(@Req() req) {
+    return this.cartService.findOne(+req.user.dataValues.id);
   }
 
-  @Get(':user_id')
+  @Delete('/:product_id')
   @Roles(Role.ADMIN, Role.CUSTOMER)
   @UseGuards(AuthGuardd, RolesGuard)
-  findOne(@Param('user_id') user_id: number, @Req() req) {
-    if (user_id !== req.user.dataValues.id) {
-      throw new ForbiddenException("Siz faqat o'z cartini ko'ra olasiz");
-    }
-    return this.cartService.findOne(user_id);
-  }
-
-  @Delete(':user_id/:product_id')
-  @Roles(Role.ADMIN, Role.CUSTOMER)
-  @UseGuards(AuthGuardd, RolesGuard)
-  remove(
-    @Param('user_id') user_id: number,
-    @Param('product_id') product_id: number,
-    @Req() req,
-  ) {
-    if (user_id !== req.user.dataValues.id) {
-      throw new ForbiddenException(
-        "Siz faqat o'z cartidan mahsulotni o'chira olasiz",
-      );
-    }
-    return this.cartService.remove(user_id, product_id);
+  remove(@Param('product_id') product_id: number, @Req() req) {
+    return this.cartService.remove(+req.user.dataValues.id, product_id);
   }
 }

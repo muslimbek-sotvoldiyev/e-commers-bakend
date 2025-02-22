@@ -5,6 +5,7 @@ import { CreateProductDto } from './dto/create-product.dto.js';
 import { UpdateProductDto } from './dto/update-product.dto.js';
 import { ProductImage } from '../product_images/product_images.model.js';
 import { Category } from '../categories/categories.model.js';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class ProductsService {
@@ -24,7 +25,6 @@ export class ProductsService {
       ...productData,
     };
 
-    console.log('productData: \n', productData);
     const product = await this.productModel.create(productData);
 
     if (images.length) {
@@ -103,5 +103,43 @@ export class ProductsService {
     const product = await this.findOneRaw(id);
     await this.productImageModel.destroy({ where: { productId: id } });
     await product.destroy();
+  }
+
+  async search(query: string){
+    console.log('query: ', query);
+
+    if (!query || query.trim().length === 0) {
+      return [];
+    }
+
+    query = query.trim(); // Keraksiz bo‘sh joylarni olib tashlaymiz
+
+    const products = await this.productModel.findAll({
+      where: {
+        [Op.or]: [
+          {
+            name: {
+              [Op.iLike]: `%${query}%`,
+            },
+          },
+          {
+            description: {
+              [Op.iLike]: `%${query}%`,
+            },
+          },
+        ],
+      },
+      include: [ProductImage, Category],
+      limit: 10,
+    });
+
+    return products.map((product) => ({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      description: product.description,
+      category: product.category ? product.category.name : null,
+      images: product.images ? product.images.map((img) => img.images) : [],
+    }));
   }
 }

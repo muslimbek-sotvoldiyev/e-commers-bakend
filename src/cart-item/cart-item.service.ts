@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -7,6 +8,7 @@ import { CreateCartItemDto } from './dto/create-cart-item.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { CartItem } from './cart-item.model';
 import { Product } from '../products/products.model';
+import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 @Injectable()
 export class CartItemService {
   constructor(
@@ -34,15 +36,15 @@ export class CartItemService {
     return this.cartItemModel.create(createCartItemDto);
   }
 
-  async findAll(userId: number) {
-    if (!userId) {
-      throw new Error('User ID is required');
-    }
-
+  async findAll() {
     const data = await this.cartItemModel.findAll({
-      where: { userId },
+      include: [
+        {
+          model: Product,
+        },
+      ],
     });
-    return data.map((cart) => cart.product);
+    return data;
   }
 
   async findOne(userId: number) {
@@ -51,7 +53,6 @@ export class CartItemService {
       include: [
         {
           model: Product,
-          attributes: ['id', 'price', 'name', 'description'],
         },
       ],
       raw: true,
@@ -75,5 +76,32 @@ export class CartItemService {
 
     await cartItem.destroy();
     return { message: 'Cart item removed successfully' };
+  }
+
+  async update(
+    id: number,
+    updateCartItemDto: UpdateCartItemDto,
+    userId: number,
+  ) {
+    // Check if quantity is valid
+    if (updateCartItemDto.quantity < 1) {
+      throw new BadRequestException('Quantity must be at least 1');
+    }
+
+    const cartItem = await this.cartItemModel.findByPk(id);
+
+    if (!cartItem) {
+      throw new NotFoundException(`Cart item with ID ${id} not found`);
+    }
+
+    // Check if the cart item belongs to the user
+    if (cartItem.userId !== userId) {
+      throw new ForbiddenException('You can only update your own cart items');
+    }
+
+    cartItem.quantity = updateCartItemDto.quantity;
+    await cartItem.save();
+
+    return cartItem;
   }
 }

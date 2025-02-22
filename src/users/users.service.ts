@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { InjectModel } from '@nestjs/sequelize';
@@ -16,19 +20,41 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const existingUser = await this.userModel.findOne({
-      where: { email: createUserDto.email },
-    });
+    try {
+      console.log(createUserDto);
+      const existingUser = await this.userModel.findOne({
+        where: { email: createUserDto.email },
+      });
 
-    if (existingUser) {
-      throw new Error('Bu email bilan talaba allaqachon mavjud.');
+      if (existingUser) {
+        throw new ConflictException(
+          'Bu email bilan foydalanuvchi allaqachon mavjud.',
+        );
+      }
+      const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+
+      const user = await this.userModel.create({
+        ...createUserDto,
+        password: hashedPassword,
+      });
+
+      const { id, email } = user;
+      const accessToken = this.generateAccessToken({ email, id });
+      const refreshToken = this.generateRefreshToken({ email, id });
+
+      const { password, ...userWithoutPassword } = user.get({ plain: true });
+
+      return {
+        user: userWithoutPassword,
+        accessToken,
+        refreshToken,
+      };
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw error;
+      }
+      throw new Error(`Foydalanuvchi yaratishda xatolik: ${error.message}`);
     }
-
-    createUserDto.password = await bcrypt.hash(createUserDto.password, 10);
-
-    const user = await this.userModel.create(createUserDto as any);
-
-    return user;
   }
 
   async login(loginUserDto: LoginUserDto) {
@@ -88,14 +114,8 @@ export class UsersService {
         id: user['dataValues'].id,
       });
 
-      const newRefreshToken = this.generateRefreshToken({
-        email: user['dataValues'].email,
-        id: user['dataValues'].id,
-      });
-
       return {
         accessToken,
-        refreshToken: newRefreshToken,
       };
     } catch (error) {
       throw new UnauthorizedException('Invalid refresh token');
@@ -132,13 +152,13 @@ export class UsersService {
 
   private generateAccessToken(data: { email: string; id: number }) {
     return jwt.sign(data, this.configService.get('JWT_ACCESS_SECRET'), {
-      expiresIn: '1h',
+      expiresIn: '14h',
     });
   }
 
   private generateRefreshToken(data: { email: string; id: number }) {
     return jwt.sign(data, this.configService.get('JWT_REFRESH_SECRET'), {
-      expiresIn: '8h',
+      expiresIn: '24h',
     });
   }
 }

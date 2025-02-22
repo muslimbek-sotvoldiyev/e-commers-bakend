@@ -37,18 +37,22 @@ export class OrderService {
         CardInfoId: cardInfoId,
       });
 
-      // OrderItem yaratish qismi to'g'rilandi
+      // CartItem dan OrderItem ga o'tkazish (size va color bilan)
       for (const item of cartItems) {
         console.log('Creating OrderItem with:', {
           orderId: order.id,
-          productId: item.productId, // id o'rniga productId ishlatildi
+          productId: item.productId,
           count: item.quantity,
+          size: item.size,
+          color: item.color,
         });
 
         await this.orderItemModel.create({
           orderId: order.id,
-          productId: item.productId, // id o'rniga productId ishlatildi
+          productId: item.productId,
           count: item.quantity,
+          size: item.size,
+          color: item.color,
         });
       }
 
@@ -87,7 +91,7 @@ export class OrderService {
       include: [
         {
           model: OrderItem,
-          include: ['product'], // OrderItem ichidagi product ma'lumotlarini ham olish
+          include: ['product'],
         },
       ],
     });

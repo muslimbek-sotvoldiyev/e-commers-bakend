@@ -37,7 +37,11 @@ export class Users extends Model {
   @Column({ type: DataType.STRING, allowNull: false })
   photo: string;
 
-  @Column({ type: DataType.ENUM('admin', 'customer'), allowNull: false })
+  @Column({
+    type: DataType.ENUM('admin', 'customer'),
+    allowNull: false,
+    defaultValue: 'customer',
+  })
   role: string;
 
   @HasMany(() => Wishlist)

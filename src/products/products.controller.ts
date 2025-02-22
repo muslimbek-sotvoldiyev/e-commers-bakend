@@ -8,6 +8,7 @@ import {
   Delete,
   UploadedFiles,
   UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ProductsService } from './products.service.js';
@@ -46,6 +47,13 @@ export class ProductsController {
   @Get()
   findAll() {
     return this.productsService.findAll();
+  }
+
+  @Get('search')
+  async search(@Query('query') query: string = '') {
+    console.log('nimagap: ', query);
+
+    return this.productsService.search(query);
   }
 
   @Get(':id')

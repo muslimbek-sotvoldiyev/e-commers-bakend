@@ -36,6 +36,12 @@ export class OrderItem extends Model<OrderItem> {
   })
   count: number;
 
+  @Column({ type: DataType.STRING, allowNull: true })
+  size: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  color: string;
+
   @BelongsTo(() => Order)
   order: Order;
 

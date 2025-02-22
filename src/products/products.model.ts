@@ -37,6 +37,13 @@ export class Product extends Model<Product> {
   })
   colors: string;
 
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+    defaultValue: () => Math.floor(Math.random() * 5) + 1, 
+  })
+  rate: number;
+
   @ForeignKey(() => Category)
   @Column({ type: DataType.INTEGER, allowNull: false })
   category_id: number;
