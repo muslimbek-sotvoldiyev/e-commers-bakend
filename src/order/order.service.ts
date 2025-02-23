@@ -21,7 +21,6 @@ export class OrderService {
       const { cardInfoId, long, lat } = createOrderDto;
 
       const cartItems = await this.cartItemService.findOne(userId);
-      console.log('Cart Items:', JSON.stringify(cartItems, null, 2));
 
       const totalPrice = cartItems.reduce(
         (sum, item) => sum + item.quantity * item.product.price,
@@ -37,7 +36,6 @@ export class OrderService {
         CardInfoId: cardInfoId,
       });
 
-      // CartItem dan OrderItem ga o'tkazish (size va color bilan)
       for (const item of cartItems) {
         console.log('Creating OrderItem with:', {
           orderId: order.id,

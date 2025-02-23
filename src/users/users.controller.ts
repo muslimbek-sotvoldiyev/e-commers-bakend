@@ -10,6 +10,7 @@ import {
   UploadedFile,
   BadRequestException,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
@@ -18,6 +19,9 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { LoginUserDto } from './dto/login-user.dto.js';
+import { Role, RolesGuard } from '../common/guards/role.guard.js';
+import { Roles } from '../common/guards/role.decorator.js';
+import { AuthGuardd } from '../common/guards/auth.guard.js';
 const storage = diskStorage({
   destination: './uploads',
   filename: (req, file, callback) => {
@@ -54,6 +58,13 @@ export class UsersController {
     };
   }
 
+  @Roles(Role.ADMIN, Role.CUSTOMER)
+  @UseGuards(AuthGuardd, RolesGuard)
+  @Get('mee')
+  GetMee(@Req() req) {
+    return this.usersService.findOne(+req.user.dataValues.id);
+  }
+
   @Post('login')
   login(@Body() loginUserDto: LoginUserDto) {
     return this.usersService.login(loginUserDto);
@@ -74,19 +85,16 @@ export class UsersController {
     return this.usersService.findOne(+id);
   }
 
-  @Get('mee')
-  GetMee(@Req() req) {
-    return this.usersService.findOne(+req.user.dataValues.id);
-  }
-
-  @Patch(':id')
+  @Roles(Role.ADMIN, Role.CUSTOMER)
+  @UseGuards(AuthGuardd, RolesGuard)
+  @Patch('')
   @UseInterceptors(
     FileInterceptor('photo', {
       storage,
     }),
   )
   async update(
-    @Param('id') id: string,
+    @Req() req,
     @Body() updateUserDto: UpdateUserDto,
     @UploadedFile() photo: any,
   ) {
@@ -94,7 +102,7 @@ export class UsersController {
       updateUserDto.photo = `/static/${photo.filename}`;
     }
 
-    return this.usersService.update(+id, updateUserDto);
+    return this.usersService.update(+req.user.dataValues.id, updateUserDto);
   }
 
   @Delete(':id')

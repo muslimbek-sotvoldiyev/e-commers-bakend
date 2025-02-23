@@ -35,6 +35,9 @@ export class Order extends Model<Order> {
   @Column({ type: DataType.FLOAT, allowNull: false })
   lat: number;
 
+  @Column({ type: DataType.STRING, allowNull: true })
+  description: string;
+
   @Column({ type: DataType.INTEGER, allowNull: false })
   totalPrice: number;
 

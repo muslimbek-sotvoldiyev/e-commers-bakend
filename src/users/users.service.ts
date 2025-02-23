@@ -11,6 +11,8 @@ import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
 import { Users } from './users.model.js';
 import { LoginUserDto } from './dto/login-user.dto.js';
+import { Order } from '../order/order.model.js';
+import { CardInfo } from '../card-info/card-info.model.js';
 
 @Injectable()
 export class UsersService {
@@ -121,13 +123,10 @@ export class UsersService {
       throw new UnauthorizedException('Invalid refresh token');
     }
   }
-
   findOne(id: number) {
     const data = this.userModel.findByPk(id);
-    if (data) {
-      return data;
-    }
-    return "malumot yo'q";
+
+    return data;
   }
 
   FindByEmail(email) {

@@ -1,29 +1,48 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCardInfoDto } from './dto/create-card-info.dto';
-import { UpdateCardInfoDto } from './dto/update-card-info.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { CardInfo } from './card-info.model';
+import { CreateCardInfoDto } from './dto/create-card-info.dto';
+import { UpdateCardInfoDto } from './dto/update-card-info.dto';
 
 @Injectable()
 export class CardInfoService {
-  constructor(@InjectModel(CardInfo) private readonly: typeof CardInfo) {}
-  create(createCardInfoDto: CreateCardInfoDto) {
-    return 'This action adds a new cardInfo';
+  constructor(
+    @InjectModel(CardInfo) private readonly cardInfoModel: typeof CardInfo,
+  ) {}
+
+  async create(
+    createCardInfoDto: CreateCardInfoDto,
+    userId: number,
+  ): Promise<CardInfo> {
+    return await this.cardInfoModel.create({
+      ...(createCardInfoDto as any),
+      userId,
+    });
   }
 
-  findAll() {
-    return `This action returns all cardInfo`;
+  async findAll(userId: number): Promise<CardInfo[]> {
+    return await this.cardInfoModel.findAll({
+      where: { userId },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} cardInfo`;
+  async findOne(userId: number): Promise<CardInfo[]> {
+    return await this.cardInfoModel.findAll({
+      where: { userId },
+    });
   }
 
-  update(id: number, updateCardInfoDto: UpdateCardInfoDto) {
-    return `This action updates a #${id} cardInfo`;
+  async update(
+    userId: number,
+    updateCardInfoDto: UpdateCardInfoDto,
+  ): Promise<[number, CardInfo[]]> {
+    return await this.cardInfoModel.update(updateCardInfoDto as any, {
+      where: { userId },
+      returning: true,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} cardInfo`;
+  async removeOne(userId: number, cardId: number): Promise<number> {
+    return await this.cardInfoModel.destroy({ where: { userId, id: cardId } });
   }
 }

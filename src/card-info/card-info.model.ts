@@ -15,14 +15,14 @@ export class CardInfo extends Model<CardInfo> {
   @Column({ type: DataType.INTEGER, autoIncrement: true, primaryKey: true })
   id: number;
 
-  @Column({ type: DataType.INTEGER, allowNull: false })
-  number: number;
+  @Column({ type: DataType.STRING, allowNull: false })
+  number: string;
 
-  @Column({ type: DataType.INTEGER, allowNull: false })
-  date: number;
+  @Column({ type: DataType.STRING, allowNull: false })
+  date: string;
 
-  @Column({ type: DataType.INTEGER, allowNull: false })
-  cvv: number;
+  @Column({ type: DataType.STRING, allowNull: true })
+  cvv: string;
 
   @Column({ type: DataType.STRING, allowNull: false })
   full_name: string;

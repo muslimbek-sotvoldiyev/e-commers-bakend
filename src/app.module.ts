@@ -18,16 +18,18 @@ import { OrderModule } from './order/order.module';
     SharedModule,
     SequelizeModule.forRoot({
       dialect: 'postgres',
-      host: process.env.PGHOST,
-      port: Number(process.env.PGPORT),
-      username: process.env.POSTGRES_DB,
-      password: process.env.PGPASSWORD,
-      database: process.env.PGUSER,
+      uri: process.env.DATABASE_URL,
       autoLoadModels: true,
       synchronize: true,
-      // sync: { force: true },
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false,
+        },
+      },
     }),
 
+    // sync: { force: true },
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '../', 'uploads'),
       serveRoot: '/static',

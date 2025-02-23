@@ -9,6 +9,6 @@ import { ConfigService } from '../common/config/config.service.js';
   imports: [SequelizeModule.forFeature([Users])],
   controllers: [UsersController],
   providers: [UsersService, ConfigService],
-  exports: [UsersService],
+  exports: [UsersService, ConfigService],
 })
 export class UsersModule {}

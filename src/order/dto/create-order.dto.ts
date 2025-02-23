@@ -10,4 +10,7 @@ export class CreateOrderDto {
 
   @IsNumber()
   lat: number;
+
+  @IsOptional()
+  description: string;
 }

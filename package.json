@@ -39,6 +39,7 @@
     "pg": "^8.13.3",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
+    "sequelize": "^6.37.5",
     "swagger-themes": "^1.4.3"
   },
   "devDependencies": {

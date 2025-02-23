@@ -6,11 +6,13 @@ import { UpdateProductDto } from './dto/update-product.dto.js';
 import { ProductImage } from '../product_images/product_images.model.js';
 import { Category } from '../categories/categories.model.js';
 import { Op } from 'sequelize';
+import { Wishlist } from '../wishlist/wishlist.model.js';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectModel(Product) private readonly productModel: typeof Product,
+    @InjectModel(Wishlist) private wishlistModel: typeof Wishlist,
     @InjectModel(ProductImage)
     private readonly productImageModel: typeof ProductImage,
   ) {}
@@ -101,11 +103,20 @@ export class ProductsService {
 
   async remove(id: number): Promise<void> {
     const product = await this.findOneRaw(id);
-    await this.productImageModel.destroy({ where: { productId: id } });
+
+    await this.wishlistModel.destroy({
+      where: { product_id: id },
+    });
+
+    await this.productImageModel.destroy({
+      where: { productId: id },
+    });
+
+    // Delete the product
     await product.destroy();
   }
 
-  async search(query: string){
+  async search(query: string) {
     console.log('query: ', query);
 
     if (!query || query.trim().length === 0) {

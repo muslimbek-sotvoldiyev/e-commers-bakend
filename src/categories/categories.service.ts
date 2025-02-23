@@ -7,7 +7,9 @@ import { Product } from '../products/products.model';
 
 @Injectable()
 export class CategoriesService {
-  constructor(@InjectModel(Category) private readonly categoryModel: typeof Category) {}
+  constructor(
+    @InjectModel(Category) private readonly categoryModel: typeof Category,
+  ) {}
 
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
     return await this.categoryModel.create(createCategoryDto);
@@ -28,14 +30,33 @@ export class CategoriesService {
     return category;
   }
 
-  async update(id: number, updateCategoryDto: UpdateCategoryDto): Promise<Category> {
+  async update(
+    id: number,
+    updateCategoryDto: UpdateCategoryDto,
+  ): Promise<Category> {
     const category = await this.findOne(id);
     return await category.update(updateCategoryDto);
   }
 
-  async remove(id: number): Promise<{ message: string }> {
-    const category = await this.findOne(id);
-    await category.destroy();
-    return { message: `Category with id ${id} has been deleted` };
+  async remove(id: number) {
+    const defaultCategoryId = 1;
+
+    const [updatedCount] = await Product.update(
+      { category_id: defaultCategoryId },
+      { where: { category_id: id } },
+    );
+    console.log(
+      `Updated ${updatedCount} products from category ${id} to ${defaultCategoryId}`,
+    );
+
+    const deletedCount = await Category.destroy({ where: { id } });
+    if (deletedCount === 0) {
+      throw new NotFoundException(`Category with id ${id} not found`);
+    }
+
+    return {
+      message: 'Category deleted successfully',
+      affectedProducts: updatedCount,
+    };
   }
 }
