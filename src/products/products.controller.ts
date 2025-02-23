@@ -9,7 +9,9 @@ import {
   UploadedFiles,
   UseInterceptors,
   Query,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ProductsService } from './products.service.js';
 import { CreateProductDto } from './dto/create-product.dto.js';
@@ -41,12 +43,16 @@ export class ProductsController {
     const images = files?.images
       ? files.images.map((file) => `/static/products/${file.filename}`)
       : [];
+
+    console.log('createProductDto: ', createProductDto);
+    console.log('\n\nimages: ', images);
+
     return this.productsService.create(createProductDto, images);
   }
 
   @Get()
-  findAll() {
-    return this.productsService.findAll();
+  findAll(@Req() req: Request) {
+    return this.productsService.findAll(req);
   }
 
   @Get('search')
@@ -57,8 +63,8 @@ export class ProductsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(+id);
+  findOne(@Param('id') id: string, @Req() req: Request) {
+    return this.productsService.findOne(+id, req);
   }
 
   @Patch(':id')

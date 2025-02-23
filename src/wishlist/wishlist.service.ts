@@ -58,14 +58,14 @@ export class WishlistService {
         name: product.name,
         description: product.description,
         price: product.price,
-        sizes: JSON.parse(product.sizes || '[]'), // JSON string bo'lsa arrayga aylantiramiz
+        sizes: JSON.parse(product.sizes || '[]'),
         colors: JSON.parse(product.colors || '[]'),
         rate: product.rate,
         category: {
           id: product.category?.id,
           name: product.category?.name,
         },
-        images: product.images.map((img) => img.images), // Faqat rasm linklarini chiqaramiz
+        images: product.images.map((img) => img.images),
         createdAt: product.createdAt,
         updatedAt: product.updatedAt,
       };

@@ -62,7 +62,7 @@ export class UsersController {
   @UseGuards(AuthGuardd, RolesGuard)
   @Get('mee')
   GetMee(@Req() req) {
-    return this.usersService.findOne(+req.user.dataValues.id);
+    return this.usersService.findOne(+req.user.dataValues.id, req);
   }
 
   @Post('login')
@@ -71,8 +71,8 @@ export class UsersController {
   }
 
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Req() req) {
+    return this.usersService.findAll(req);
   }
 
   @Post('refresh')
@@ -81,8 +81,28 @@ export class UsersController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  findOne(@Param('id') id: string, @Req() req) {
+    return this.usersService.findOne(+id, req);
+  }
+
+  @Roles(Role.ADMIN)
+  @UseGuards(AuthGuardd, RolesGuard)
+  @Patch(':id')
+  @UseInterceptors(
+    FileInterceptor('photo', {
+      storage,
+    }),
+  )
+  async updateId(
+    @Param('id') id: number,
+    @Body() updateUserDto: UpdateUserDto,
+    @UploadedFile() photo: any,
+  ) {
+    if (photo) {
+      updateUserDto.photo = `/static/${photo.filename}`;
+    }
+
+    return this.usersService.update(+id, updateUserDto);
   }
 
   @Roles(Role.ADMIN, Role.CUSTOMER)

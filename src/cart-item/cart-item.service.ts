@@ -83,7 +83,7 @@ export class CartItemService {
     updateCartItemDto: UpdateCartItemDto,
     userId: number,
   ) {
-    // Check if quantity is valid
+    
     if (updateCartItemDto.quantity < 1) {
       throw new BadRequestException('Quantity must be at least 1');
     }
@@ -94,7 +94,6 @@ export class CartItemService {
       throw new NotFoundException(`Cart item with ID ${id} not found`);
     }
 
-    // Check if the cart item belongs to the user
     if (cartItem.userId !== userId) {
       throw new ForbiddenException('You can only update your own cart items');
     }

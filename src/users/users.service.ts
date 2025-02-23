@@ -11,8 +11,8 @@ import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
 import { Users } from './users.model.js';
 import { LoginUserDto } from './dto/login-user.dto.js';
-import { Order } from '../order/order.model.js';
-import { CardInfo } from '../card-info/card-info.model.js';
+
+import { Request } from 'express';
 
 @Injectable()
 export class UsersService {
@@ -23,7 +23,6 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto) {
     try {
-      console.log(createUserDto);
       const existingUser = await this.userModel.findOne({
         where: { email: createUserDto.email },
       });
@@ -91,13 +90,21 @@ export class UsersService {
     };
   }
 
-  findAll() {
-    const data = this.userModel.findAll();
-    if (data) {
-      return data;
+  async findAll(req: Request) {
+    const BASE_URL = `${req.protocol}://${req.get('host')}`;
+
+    const data = await this.userModel.findAll();
+
+    if (!data.length) {
+      return "Ma'lumot yo'q";
     }
-    return "malumot yo'q";
+
+    return data.map((user) => ({
+      ...user.toJSON(),
+      avatar: user.avatar ? `${BASE_URL}${user.avatar}` : null, 
+    }));
   }
+
   async refreshToken(refreshToken: string) {
     try {
       const decoded = jwt.verify(
@@ -123,10 +130,20 @@ export class UsersService {
       throw new UnauthorizedException('Invalid refresh token');
     }
   }
-  findOne(id: number) {
-    const data = this.userModel.findByPk(id);
 
-    return data;
+  async findOne(id: number, req: Request) {
+    const BASE_URL = `${req.protocol}://${req.get('host')}/`;
+
+    const data = await this.userModel.findByPk(id);
+
+    if (!data) {
+      return "Ma'lumot yo'q";
+    }
+
+    return {
+      ...data.toJSON(),
+      avatar: data.avatar ? `${BASE_URL}${data.avatar}` : null,
+    };
   }
 
   FindByEmail(email) {

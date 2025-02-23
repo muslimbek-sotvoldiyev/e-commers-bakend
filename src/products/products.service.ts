@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Product } from './products.model.js';
+import { Request } from 'express';
 import { CreateProductDto } from './dto/create-product.dto.js';
 import { UpdateProductDto } from './dto/update-product.dto.js';
 import { ProductImage } from '../product_images/product_images.model.js';
@@ -41,7 +42,9 @@ export class ProductsService {
     return product;
   }
 
-  async findAll(): Promise<any[]> {
+  async findAll(req: Request): Promise<any[]> {
+    const BASE_URL = `${req.protocol}://${req.get('host')}`;
+
     const products = await this.productModel.findAll({
       include: [ProductImage, Category],
     });
@@ -49,11 +52,13 @@ export class ProductsService {
     return products.map((product) => ({
       ...product.toJSON(),
       category: product.category ? product.category.name : null,
-      images: product.images.map((img) => img.images),
+      images: product.images.map((img) => `${BASE_URL}${img.images}`),
     }));
   }
 
-  async findOne(id: number): Promise<any> {
+  async findOne(id: number, req: Request): Promise<any> {
+    const BASE_URL = `${req.protocol}://${req.get('host')}`;
+
     const product = await this.productModel.findByPk(id, {
       include: [ProductImage, Category],
     });
@@ -65,7 +70,7 @@ export class ProductsService {
     return {
       ...product.toJSON(),
       category: product.category ? product.category.name : null,
-      images: product.images.map((img) => img.images),
+      images: product.images.map((img) => `${BASE_URL}${img.images}`),
     };
   }
 
@@ -112,7 +117,6 @@ export class ProductsService {
       where: { productId: id },
     });
 
-    // Delete the product
     await product.destroy();
   }
 
@@ -123,7 +127,7 @@ export class ProductsService {
       return [];
     }
 
-    query = query.trim(); // Keraksiz bo‘sh joylarni olib tashlaymiz
+    query = query.trim();
 
     const products = await this.productModel.findAll({
       where: {

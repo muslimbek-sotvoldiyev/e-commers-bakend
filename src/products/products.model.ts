@@ -15,10 +15,7 @@ import { OrderItem } from '../order-item/order-item.model.js';
 
 @Table({ tableName: 'products' })
 export class Product extends Model<Product> {
-  @Column({ type: DataType.INTEGER, autoIncrement: true, primaryKey: true })
-  id: number;
-
-  @Column({ type: DataType.STRING, unique: true, allowNull: false })
+  @Column({ type: DataType.STRING, allowNull: false })
   name: string;
 
   @Column({ type: DataType.TEXT, allowNull: false })
@@ -40,7 +37,7 @@ export class Product extends Model<Product> {
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
-    defaultValue: () => Math.floor(Math.random() * 5) + 1, 
+    defaultValue: () => Math.floor(Math.random() * 5) + 1,
   })
   rate: number;
 
