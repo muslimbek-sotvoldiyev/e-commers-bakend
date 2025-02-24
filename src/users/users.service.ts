@@ -1,7 +1,6 @@
 import {
   ConflictException,
   Injectable,
-  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto.js';
@@ -23,6 +22,9 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
+    console.log('Password value:', createUserDto.password);
+    console.log('Password type:', typeof createUserDto.password);
+
     try {
       const existingUser = await this.userModel.findOne({
         where: { email: createUserDto.email },
@@ -33,14 +35,6 @@ export class UsersService {
           'Bu email bilan foydalanuvchi allaqachon mavjud.',
         );
       }
-
-      if (
-        !createUserDto.password ||
-        typeof createUserDto.password !== 'string'
-      ) {
-        throw new Error('Parol noto‘g‘ri: string formatida emas!');
-      }
-
       const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
       const user = await this.userModel.create({
@@ -63,9 +57,7 @@ export class UsersService {
       if (error instanceof ConflictException) {
         throw error;
       }
-      throw new InternalServerErrorException(
-        `Foydalanuvchi yaratishda xatolik: ${error.message}`,
-      );
+      throw new Error(`Foydalanuvchi yaratishda xatolik: ${error.message}`);
     }
   }
 
