@@ -22,8 +22,8 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    console.log('Password value:', createUserDto.password);
-    console.log('Password type:', typeof createUserDto.password);
+    // console.log('Password value:', createUserDto.password);
+    // console.log('Password type:', typeof createUserDto.password);
 
     try {
       const existingUser = await this.userModel.findOne({
