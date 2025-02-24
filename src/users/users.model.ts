@@ -38,7 +38,7 @@ export class Users extends Model {
     type: DataType.STRING,
     allowNull: true,
   })
-  avatar: string;
+  photo: string;
 
   @Column({
     type: DataType.ENUM('admin', 'customer'),

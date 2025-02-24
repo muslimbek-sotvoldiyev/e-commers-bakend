@@ -29,7 +29,6 @@ import { OrderModule } from './order/order.module';
       },
     }),
 
-    // sync: { force: true },
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '../', 'uploads'),
       serveRoot: '/static',

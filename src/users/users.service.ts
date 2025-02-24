@@ -65,6 +65,7 @@ export class UsersService {
     if (!user) {
       throw new UnauthorizedException('Invalid email or password');
     }
+    console.log(password, user);
 
     const isPasswordValid = await bcrypt.compare(
       password,
@@ -91,7 +92,7 @@ export class UsersService {
   }
 
   async findAll(req: Request) {
-    const BASE_URL = `${req.protocol}://${req.get('host')}`;
+    const BASE_URL = `${req.protocol}://${req.get('host')}/`;
 
     const data = await this.userModel.findAll();
 
@@ -101,7 +102,7 @@ export class UsersService {
 
     return data.map((user) => ({
       ...user.toJSON(),
-      avatar: user.avatar ? `${BASE_URL}${user.avatar}` : null, 
+      photo: user.photo ? `${BASE_URL}${user.photo}` : null,
     }));
   }
 
@@ -142,7 +143,7 @@ export class UsersService {
 
     return {
       ...data.toJSON(),
-      avatar: data.avatar ? `${BASE_URL}${data.avatar}` : null,
+      photo: data.photo ? `${BASE_URL}${data.photo}` : null,
     };
   }
 
@@ -152,6 +153,15 @@ export class UsersService {
       return data;
     }
     return "malumot yo'q";
+  }
+
+  async updateAdmin(id: number, updateUserDto: UpdateUserDto) {
+    const [affectedCount] = await this.userModel.update(updateUserDto, {
+      where: { id },
+      returning: true,
+    });
+
+    return [affectedCount];
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

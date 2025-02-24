@@ -11,6 +11,7 @@ import {
   BadRequestException,
   Req,
   UseGuards,
+  NotFoundException,
 } from '@nestjs/common';
 import { UsersService } from './users.service.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
@@ -35,6 +36,11 @@ const storage = diskStorage({
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Post('login')
+  login(@Body() loginUserDto: LoginUserDto) {
+    return this.usersService.login(loginUserDto);
+  }
 
   @Post('register')
   @UseInterceptors(
@@ -65,11 +71,6 @@ export class UsersController {
     return this.usersService.findOne(+req.user.dataValues.id, req);
   }
 
-  @Post('login')
-  login(@Body() loginUserDto: LoginUserDto) {
-    return this.usersService.login(loginUserDto);
-  }
-
   @Get()
   findAll(@Req() req) {
     return this.usersService.findAll(req);
@@ -98,11 +99,28 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
     @UploadedFile() photo: any,
   ) {
-    if (photo) {
-      updateUserDto.photo = `/static/${photo.filename}`;
-    }
+    try {
+      if (photo) {
+        updateUserDto.photo = `/static/${photo.filename}`;
+      }
 
-    return this.usersService.update(+id, updateUserDto);
+      const updatedUser = await this.usersService.updateAdmin(
+        +id,
+        updateUserDto,
+      );
+
+      if (!updatedUser[0]) {
+        // Sequelize update returns [affectedCount, affectedRows]
+        throw new NotFoundException(`User with ID ${id} not found`);
+      }
+
+      return {
+        success: true,
+        message: 'User updated successfully',
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   @Roles(Role.ADMIN, Role.CUSTOMER)
